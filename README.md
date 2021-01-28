@@ -2,7 +2,7 @@
 服务器cmdline配置硬raid
 
 ```bash
-curl -sOL https://raw.githubusercontent.com/SkyOfWood/set_raid/master/set_raid.sh && bash set_raid.sh --help
+curl -sOkL https://raw.githubusercontent.com/SkyOfWood/set_raid/master/set_raid.sh && bash set_raid.sh --help
 ```
 
 
