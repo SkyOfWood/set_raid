@@ -7,7 +7,7 @@ echo_INFO(){
 }
 
 mkdir -p /tmp/raid && cd /tmp/raid
-URL='https://mtr.sp.baishan.com/north/raid'
+URL='https://raw.githubusercontent.com/SkyOfWood/set_raid/master'
 if [[ -f raid_ctrl_x64.tar.gz ]];then
     if [[ `md5sum raid_ctrl_x64.tar.gz |awk '{print$1}'` != `curl -s $URL/md5sum.txt` ]];then
         curl -skO $URL/raid_ctrl_x64.tar.gz && tar zxf raid_ctrl_x64.tar.gz
@@ -18,10 +18,6 @@ else
     curl -skO $URL/raid_ctrl_x64.tar.gz && tar zxf raid_ctrl_x64.tar.gz
 fi
 
-# if [[ -z $(command -v lspci) ]];then
-#     echo "lspci 命令不存在，请检查pciutils包是否安装"
-#     exit 2
-# fi
 test -f /sbin/lspci || yum install -y -q pciutils
 DISK_CON_MODEL=`lspci |grep -E "SAS|LSI"|awk -F: '{print$3}'`
 if [[ -z $(echo_INFO "$DISK_CON_MODEL"|grep -i raid) ]];then
@@ -187,12 +183,13 @@ deal_boot(){
 }
 
 delete_raid(){
-    echo_INFO "正在判断系统流量..."
-    FLOW_IN=$(./ifstat 2 3 |awk 'NR>=3{print}'|awk -vOFS= '{for(i=1;i<=NF;i+=2)$(i+1)=FS}1'|awk '{for(i=1;i<=NF;i++){array[i]+=$i}}END{for(i in array){ave=array[i]/NR;print ave}}'|awk 'BEGIN {max = 0} {if ($1+0 > max+0) max=$1} END {print max}'|xargs echo | awk '{print int($0)}')
-    if [[ "$FLOW_IN" -gt 1000 ]];then
-        echo_INFO "流量大于1000KB，无法删除RAID配置"
-        exit 2
-    fi
+    # 根据业务类型来判断服务器当前是否还存在业务流量
+    # echo_INFO "正在判断系统流量..."
+    # FLOW_IN=$(./ifstat 2 3 |awk 'NR>=3{print}'|awk -vOFS= '{for(i=1;i<=NF;i+=2)$(i+1)=FS}1'|awk '{for(i=1;i<=NF;i++){array[i]+=$i}}END{for(i in array){ave=array[i]/NR;print ave}}'|awk 'BEGIN {max = 0} {if ($1+0 > max+0) max=$1} END {print max}'|xargs echo | awk '{print int($0)}')
+    # if [[ "$FLOW_IN" -gt 1000 ]];then
+    #     echo_INFO "流量大于1000KB，无法删除RAID配置"
+    #     exit 2
+    # fi
     deal_boot set auto
     VDS=$(for i in `seq 0 $VD_Num`;do ./jq -r ".\"Controllers\"[0].\"Response Data\".\"VD LIST\"[${i}].\"DG/VD\"" raid_all.conf.json;done |awk -F/ '{print$2}'|egrep -v -w $BootDrive_VD)
     if [[ -z $VDS ]];then
