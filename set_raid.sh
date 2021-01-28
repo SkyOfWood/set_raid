@@ -9,7 +9,7 @@ echo_INFO(){
 mkdir -p /tmp/raid && cd /tmp/raid
 URL='https://raw.githubusercontent.com/SkyOfWood/set_raid/master'
 if [[ -f raid_ctrl_x64.tar.gz ]];then
-    if [[ `md5sum raid_ctrl_x64.tar.gz |awk '{print$1}'` != `curl -s $URL/md5sum.txt` ]];then
+    if [[ `md5sum raid_ctrl_x64.tar.gz |awk '{print$1}'` != `curl -sk $URL/md5sum.txt` ]];then
         curl -skO $URL/raid_ctrl_x64.tar.gz && tar zxf raid_ctrl_x64.tar.gz
     else
         tar zxf raid_ctrl_x64.tar.gz
